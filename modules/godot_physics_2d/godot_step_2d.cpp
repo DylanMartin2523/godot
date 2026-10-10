@@ -49,8 +49,8 @@ void GodotStep2D::_populate_island(GodotBody2D *p_body, LocalVector<GodotBody2D 
 		p_body_island.push_back(p_body);
 	}
 
-	for (const Pair<GodotConstraint2D *, int> &E : p_body->get_constraint_list()) {
-		GodotConstraint2D *constraint = E.first;
+	for (const KeyValue<GodotConstraint2D *, int> &E : p_body->get_constraint_map()) {
+		GodotConstraint2D *constraint = E.key;
 		if (constraint->get_island_step() == _step) {
 			continue; // Already processed.
 		}
@@ -59,7 +59,7 @@ void GodotStep2D::_populate_island(GodotBody2D *p_body, LocalVector<GodotBody2D 
 		all_constraints.push_back(constraint);
 
 		for (int i = 0; i < constraint->get_body_count(); i++) {
-			if (i == E.second) {
+			if (i == E.value) {
 				continue;
 			}
 			GodotBody2D *other_body = constraint->get_body_ptr()[i];

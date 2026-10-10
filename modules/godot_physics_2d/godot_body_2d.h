@@ -33,6 +33,7 @@
 #include "godot_area_2d.h"
 #include "godot_collision_object_2d.h"
 
+#include "core/templates/hash_map.h"
 #include "core/templates/list.h"
 #include "core/templates/pair.h"
 #include "core/templates/vset.h"
@@ -105,7 +106,10 @@ class GodotBody2D : public GodotCollisionObject2D {
 	virtual void _shapes_changed() override;
 	Transform2D new_transform;
 
-	List<Pair<GodotConstraint2D *, int>> constraint_list;
+	// Constraint -> this body's index in it. A HashMap (as GodotBody3D has), not a List:
+	// every pair removal erases from here, and a List erase is a linear search, so
+	// mass unpairs against a body holding thousands of pairs went quadratic.
+	HashMap<GodotConstraint2D *, int> constraint_map;
 
 	struct AreaCMP {
 		GodotArea2D *area = nullptr;
@@ -202,10 +206,10 @@ public:
 	_FORCE_INLINE_ uint64_t get_island_step() const { return island_step; }
 	_FORCE_INLINE_ void set_island_step(uint64_t p_step) { island_step = p_step; }
 
-	_FORCE_INLINE_ void add_constraint(GodotConstraint2D *p_constraint, int p_pos) { constraint_list.push_back({ p_constraint, p_pos }); }
-	_FORCE_INLINE_ void remove_constraint(GodotConstraint2D *p_constraint, int p_pos) { constraint_list.erase({ p_constraint, p_pos }); }
-	const List<Pair<GodotConstraint2D *, int>> &get_constraint_list() const { return constraint_list; }
-	_FORCE_INLINE_ void clear_constraint_list() { constraint_list.clear(); }
+	_FORCE_INLINE_ void add_constraint(GodotConstraint2D *p_constraint, int p_pos) { constraint_map[p_constraint] = p_pos; }
+	_FORCE_INLINE_ void remove_constraint(GodotConstraint2D *p_constraint, int /*p_pos*/) { constraint_map.erase(p_constraint); }
+	const HashMap<GodotConstraint2D *, int> &get_constraint_map() const { return constraint_map; }
+	_FORCE_INLINE_ void clear_constraint_map() { constraint_map.clear(); }
 
 	_FORCE_INLINE_ void set_omit_force_integration(bool p_omit_force_integration) { omit_force_integration = p_omit_force_integration; }
 	_FORCE_INLINE_ bool get_omit_force_integration() const { return omit_force_integration; }

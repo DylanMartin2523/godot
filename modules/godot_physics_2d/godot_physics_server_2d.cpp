@@ -548,7 +548,7 @@ void GodotPhysicsServer2D::body_set_space(RID p_body, RID p_space) {
 		return; //pointless
 	}
 
-	body->clear_constraint_list();
+	body->clear_constraint_map();
 	body->set_space(space);
 }
 

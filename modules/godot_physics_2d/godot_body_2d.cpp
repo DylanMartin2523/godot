@@ -655,13 +655,13 @@ void GodotBody2D::integrate_velocities(real_t p_step) {
 }
 
 void GodotBody2D::wakeup_neighbours() {
-	for (const Pair<GodotConstraint2D *, int> &E : constraint_list) {
-		const GodotConstraint2D *c = E.first;
+	for (const KeyValue<GodotConstraint2D *, int> &E : constraint_map) {
+		const GodotConstraint2D *c = E.key;
 		GodotBody2D **n = c->get_body_ptr();
 		int bc = c->get_body_count();
 
 		for (int i = 0; i < bc; i++) {
-			if (i == E.second) {
+			if (i == E.value) {
 				continue;
 			}
 			GodotBody2D *b = n[i];
